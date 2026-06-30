@@ -133,9 +133,9 @@ float4 main(PS_INPUT input) : SV_TARGET {
     float dil = lerp(1.0, DILATION_MIN, I);
     float vis = 1.0;
 
-    float2 center = float2(0.5, 0.5)
-                  + float2(0.08 * sin(t * 0.21) + 0.03 * sin(t * 0.083),
-                           0.06 * sin(t * 0.157 + 2.0) + 0.03 * sin(t * 0.117));
+    // Center is fixed at screen center — avoids feedback ghosting when
+    // exclude_from_capture is off (OBS recording mode)
+    float2 center = float2(0.5, 0.5);
 
     float shield = vis * smoothstep(WORK_AREA, WORK_AREA + 0.18, yUp);
     float2 p     = (uv - center) * float2(aspect, 1.0);
