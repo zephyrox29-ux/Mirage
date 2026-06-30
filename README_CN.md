@@ -122,6 +122,18 @@ Mirage 可以在电脑无人操作时自动激活效果，类似屏保：
 
 每个效果最多可配置 16 个浮点参数。参数在着色器中通过 `u_param_<参数名>` 访问（如 `u_param_hole_radius`）。
 
+### OBS 录屏 / 屏幕录制
+
+默认情况下 Mirage 对基于 DXGI 的屏幕捕获（OBS 显示器采集、Xbox Game Bar 等）不可见，以防止视觉反馈循环。如需录制演示：
+
+1. 在 `config.json` 中设置 `"exclude_from_capture": false`，按 `F5`
+2. 录屏软件即可捕获 Mirage 效果
+3. **注意事项：** 移动类效果（如 `center_drift > 0` 的黑洞）会因逐帧反馈叠加而出现残影鬼影。干净录制的方法：
+   - 将黑洞的 `center_drift` 设为 `0.0`，使其固定在屏幕中央，或
+   - 使用采集卡（硬件采集，不受 DXGI 排除影响），或
+   - 使用 OBS 窗口采集直接捕获 Mirage 窗口
+4. 录制完成后将 `exclude_from_capture` 改回 `true` 恢复正常
+
 ### 常见问题
 
 - **按下快捷键没有效果：** 查看桌面的 `mirage_shader_errors.txt`，里面记录了着色器编译错误。修正后按 `F5` 重载。

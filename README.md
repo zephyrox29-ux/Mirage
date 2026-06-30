@@ -139,6 +139,18 @@ When idle time exceeds the threshold, the effect fades in smoothly via size scal
 
 The screensaver effect must have a `fade` parameter (set to `1.0` in config). The program uses this to control the smooth appear/disappear animation by scaling the effect size from zero to full.
 
+### Recording with OBS / Screen Recorders
+
+By default Mirage is invisible to DXGI-based screen capture (OBS Display Capture, Xbox Game Bar, etc.) to prevent visual feedback loops. To record demos:
+
+1. Set `"exclude_from_capture": false` in `config.json`, press `F5`
+2. Your screen recorder can now see Mirage effects
+3. **Caveat:** moving effects (like black hole with `center_drift > 0`) will show ghosting due to feedback compounding. For clean recording:
+   - Set `"center_drift": 0.0` in the black hole params to freeze it at screen center, or
+   - Use a capture card (hardware capture, immune to DXGI exclusion), or
+   - Use OBS Window Capture targeting the Mirage window directly
+4. Set `"exclude_from_capture": true` when done to restore normal operation
+
 ### Troubleshooting
 
 - **Effect has no visible result:** Check `Desktop\mirage_shader_errors.txt` for shader compilation errors. Press `F5` to reload after fixing.
