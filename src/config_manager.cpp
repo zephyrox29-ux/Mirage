@@ -14,7 +14,7 @@ static Config build_defaults() {
         },
         {
             "kaleidoscope", "Kaleidoscope", "shaders/kaleidoscope.hlsl", "hold",
-            {"ctrl", "shift", "m"}, {{"sector_count", 8.0f}, {"rotation_speed", 0.5f}}
+            {"ctrl", "shift", "m"}, {{"mirrors", 3.0f}, {"sectors", 12.0f}, {"speed", 0.3f}}
         },
         {
             "window_boil", "Window Boil", "shaders/window_boil.hlsl", "toggle",
