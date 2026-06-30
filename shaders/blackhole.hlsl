@@ -1,5 +1,10 @@
-// Schwarzschild black hole pixel shader — ported to Mirage
+// ───────────────────────────────────────────────
+// Schwarzschild Black Hole Pixel Shader
+// Adapted for Mirage from ghostty-blackhole-main
+//
 // Original: https://github.com/XboxNahida/ghostty-blackhole-main
+// License:  MIT — Copyright (c) 2025 XboxNahida
+// ───────────────────────────────────────────────
 
 static const float HOLE_RADIUS   = 0.0200;
 static const float LENS_DEPTH    = 13.0000;

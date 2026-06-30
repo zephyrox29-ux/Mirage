@@ -301,6 +301,10 @@ xcopy shaders release\Mirage\shaders\ /E
 
 This project was developed with assistance from **DeepSeek V4 Pro** running via **Claude Code** as the AI coding companion. The AI contributed to shader porting, constant buffer design, bug diagnosis, and README documentation.
 
+### Third-Party Code
+
+The black hole shader (`shaders/blackhole.hlsl`) is adapted from [XboxNahida/ghostty-blackhole-main](https://github.com/XboxNahida/ghostty-blackhole-main), MIT license — Copyright (c) 2025 XboxNahida.
+
 ### License
 
 MIT — see [LICENSE](LICENSE).

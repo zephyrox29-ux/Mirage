@@ -301,6 +301,10 @@ xcopy shaders release\Mirage\shaders\ /E
 
 本项目使用 **DeepSeek V4 Pro** 通过 **Claude Code** 作为 AI 编码助手协助开发。AI 参与了着色器移植、常量缓冲区设计、Bug 排查及文档编写。
 
+### 第三方代码
+
+黑洞着色器（`shaders/blackhole.hlsl`）改编自 [XboxNahida/ghostty-blackhole-main](https://github.com/XboxNahida/ghostty-blackhole-main)，MIT 许可证 — Copyright (c) 2025 XboxNahida。
+
 ### 许可证
 
 MIT — 详见 [LICENSE](LICENSE)。
