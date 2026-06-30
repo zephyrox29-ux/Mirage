@@ -437,6 +437,7 @@ static bool is_desktop_or_own_window(HWND hwnd) {
     if (_wcsicmp(cls, L"Windows.UI.Core.CoreWindow") == 0) return true; // UWP chrome
     if (_wcsicmp(cls, L"DummyDWMListenerWindow") == 0) return true;
     if (_wcsicmp(cls, L"ThumbnailDeviceHelperWnd") == 0) return true;
+    if (_wcsicmp(cls, L"ApplicationFrameWindow") == 0)  return true; // UWP title bar chrome
     return false;
 }
 

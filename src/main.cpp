@@ -162,6 +162,14 @@ static void update_and_render() {
 
     g_has_active_effects = !active_shaders.empty();
 
+    // Check if screensaver is the only active effect (for smooth alpha fade)
+    bool ss_only = (g_auto_fade > 0.001f);
+    for (size_t i = 0; ss_only && i < active.size() && i < g_shaders.size(); i++) {
+        if ((int)i != g_ss_shader_idx && active[i] && g_shaders[i]) {
+            ss_only = false;
+        }
+    }
+
     // Alpha-toggle visibility (window always visible, transparent when idle)
     {
         bool has_effects = g_has_active_effects;
@@ -174,7 +182,13 @@ static void update_and_render() {
             g_alpha_warmup = false;
         }
 
-        BYTE alpha = (has_effects && !g_alpha_warmup) ? 255 : 0;
+        BYTE alpha = 0;
+        if (has_effects && !g_alpha_warmup) {
+            // Screensaver-only: fade alpha smoothly with effect size (no flash)
+            // Other effects: immediate full alpha
+            float a = ss_only ? g_auto_fade : 1.0f;
+            alpha = (BYTE)(a * 255.0f);
+        }
         SetLayeredWindowAttributes(g_hwnd, 0, alpha, LWA_ALPHA);
 
         g_had_effects = has_effects;
