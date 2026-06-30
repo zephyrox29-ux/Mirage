@@ -21,7 +21,9 @@ static bool                      g_had_effects = false;   // previous frame effe
 static bool                      g_has_active_effects = false;
 static bool                      g_dump_pressed = false;
 static int                       g_shader_failures = 0;
-static float                     g_auto_fade = 0.0f;       // screensaver-style auto fade
+static float                     g_auto_fade = 0.0f;       // current smooth fade value
+static float                     g_manual_target = 0.0f;   // 1=user wants BH on, 0=off
+static float                     g_auto_target = 0.0f;     // 1=idle screensaver, 0=active
 static int                       g_bh_shader_idx = -1;     // black hole index in g_shaders
 static int                       g_bh_fade_param_idx = -1; // "fade" param index in black hole
 
@@ -105,40 +107,54 @@ static void update_and_render() {
         load_all_shaders();
     }
 
-    // Auto-idle: detect inactivity and fade black hole in/out smoothly
+    // ── Black hole fade control (manual toggle + auto-idle screensaver) ──
     {
         LASTINPUTINFO lii = { sizeof(LASTINPUTINFO) };
         GetLastInputInfo(&lii);
-        DWORD idle_ms = GetTickCount() - lii.dwTime;
-        bool  is_idle = idle_ms > 30000; // 30-second threshold
+        bool is_idle = (GetTickCount() - lii.dwTime) > 30000;
 
-        float target = is_idle ? 1.0f : 0.0f;
-        float step   = input_time_delta() * 0.5f; // ~2 seconds for full fade
+        // Auto target: screensaver behaviour
+        g_auto_target = is_idle ? 1.0f : 0.0f;
+
+        // Manual target: intercept Ctrl+Shift+B toggle edges
+        const auto& active_states = input_effect_active_states();
+        if (g_bh_shader_idx >= 0 && g_bh_shader_idx < (int)active_states.size()) {
+            static bool prev_toggle = false;
+            bool curr_toggle = active_states[g_bh_shader_idx];
+            if (curr_toggle != prev_toggle) {
+                g_manual_target = (g_manual_target > 0.5f) ? 0.0f : 1.0f;
+            }
+            prev_toggle = curr_toggle;
+        }
+
+        // Effective target: manual overrides auto-off, auto-on works independently
+        float target = max(g_manual_target, g_auto_target);
+
+        // Smooth fade toward target (~2 seconds for full transition)
+        float step = input_time_delta() * 0.5f;
         if (g_auto_fade < target) g_auto_fade = min(target, g_auto_fade + step);
         if (g_auto_fade > target) g_auto_fade = max(target, g_auto_fade - step);
 
-        // Update black hole's fade param dynamically
+        // Push fade value into black hole shader params
         if (g_bh_shader_idx >= 0 && g_bh_fade_param_idx >= 0 && g_shaders[g_bh_shader_idx]) {
-            // 0 = use shader default (1.0), only set while auto-fading
             g_shaders[g_bh_shader_idx]->param_values[g_bh_fade_param_idx] =
                 g_auto_fade > 0.001f ? g_auto_fade : 0.0f;
         }
     }
 
-    // Collect active effects
+    // Collect active effects (skip black hole — handled by fade system below)
     const auto& active = input_effect_active_states();
     std::vector<Shader*> active_shaders;
     for (size_t i = 0; i < active.size() && i < g_shaders.size(); i++) {
+        if ((int)i == g_bh_shader_idx) continue; // handled separately
         if (active[i] && g_shaders[i]) {
             active_shaders.push_back(g_shaders[i]);
         }
     }
 
-    // Auto-activate black hole when fading in (add if not already active)
-    if (g_auto_fade > 0.001f && g_bh_shader_idx >= 0 && g_bh_shader_idx < (int)active.size()) {
-        if (!active[g_bh_shader_idx] && g_shaders[g_bh_shader_idx]) {
-            active_shaders.push_back(g_shaders[g_bh_shader_idx]);
-        }
+    // Black hole active when fading in/out (smooth size transition)
+    if (g_auto_fade > 0.001f && g_bh_shader_idx >= 0 && g_shaders[g_bh_shader_idx]) {
+        active_shaders.push_back(g_shaders[g_bh_shader_idx]);
     }
 
     g_has_active_effects = !active_shaders.empty();
