@@ -23,13 +23,13 @@ struct MirageUniforms {
     float time_delta;                 // offset 20
     float _pad[2];                    // offset 24 → align to 32
     float active_window[4];           // offset 32
-    float params[16];                 // offset 48 (16 floats = 64 bytes)
-    unsigned int window_count;        // offset 112
-    float _pad2[3];                   // offset 116 → align to 128
-    float window_rects[64][4];        // offset 128 (64 windows × float4)
+    float params[20];                 // offset 48 (20 floats = 80 bytes)
+    unsigned int window_count;        // offset 128
+    float _pad2[3];                   // offset 132 → align to 144
+    float window_rects[64][4];        // offset 144 (64 windows × float4)
 };
 #pragma pack(pop)
-static_assert(sizeof(MirageUniforms) == 1152, "CBuffer size mismatch");
+static_assert(sizeof(MirageUniforms) == 1168, "CBuffer size mismatch");
 
 // Built-in vertex shader (full-screen pass-through triangle)
 static const char* g_vs_source = R"(
@@ -51,7 +51,7 @@ cbuffer MirageUniforms : register(b0) {
     float  u_time;
     float  u_time_delta;
     float4 u_active_window;
-    float4 u_params[4];
+    float4 u_params[5];
     uint   u_window_count;
     float4 u_window_rects[64];
 };
@@ -104,7 +104,7 @@ static std::string generate_param_defines(const EffectConfig& cfg) {
     int idx = 0;
     const char* comp[] = { "x", "y", "z", "w" };
     for (const auto& [name, value] : cfg.params) {
-        if (idx >= 16) break;
+        if (idx >= 20) break;
         char buf[256];
         snprintf(buf, sizeof(buf), "#define u_param_%s u_params[%d].%s\n",
                  name.c_str(), idx / 4, comp[idx % 4]);
@@ -171,7 +171,7 @@ Shader* shader_load(ID3D11Device* device, const EffectConfig& cfg) {
     // Store param values
     s->param_count = 0;
     for (const auto& [name, value] : cfg.params) {
-        if (s->param_count >= 16) break;
+        if (s->param_count >= 20) break;
         s->param_values[s->param_count++] = value;
     }
 
