@@ -9,32 +9,39 @@
       "hotkey": { "keys": ["ctrl", "shift", "i"], "mode": "toggle" }
     },
     {
-      "id": "magnifier",
-      "name": "Mouse Magnifier",
-      "shader": "shaders/magnifier.hlsl",
+      "id": "kaleidoscope",
+      "name": "Kaleidoscope",
+      "shader": "shaders/kaleidoscope.hlsl",
       "hotkey": { "keys": ["ctrl", "shift", "m"], "mode": "hold" },
-      "params": { "zoom": 2.0, "radius": 200 }
+      "params": { "sector_count": 8.0, "rotation_speed": 0.5 }
     },
     {
-      "id": "warm_color",
-      "name": "Warm Color Temperature",
-      "shader": "shaders/warm_color.hlsl",
+      "id": "window_boil",
+      "name": "Window Boil",
+      "shader": "shaders/window_boil.hlsl",
       "hotkey": { "keys": ["ctrl", "shift", "w"], "mode": "toggle" },
-      "params": { "temperature": 3000 }
+      "params": { "intensity": 1.0, "speed": 1.0 }
     },
     {
-      "id": "edge_glow",
-      "name": "Window Edge Glow",
-      "shader": "shaders/edge_glow.hlsl",
+      "id": "edge_neon",
+      "name": "Edge Neon",
+      "shader": "shaders/edge_neon.hlsl",
       "hotkey": { "keys": ["ctrl", "shift", "e"], "mode": "toggle" },
-      "params": { "width": 10.0, "intensity": 0.5 }
+      "params": { "neon_width": 8.0, "speed": 2.0, "spark": 1.0 }
     },
     {
-      "id": "window_jiggle",
-      "name": "Window Jiggle",
-      "shader": "shaders/window_jiggle.hlsl",
+      "id": "glitch_shift",
+      "name": "Glitch Shift",
+      "shader": "shaders/glitch_shift.hlsl",
       "hotkey": { "keys": ["ctrl", "shift", "j"], "mode": "toggle" },
-      "params": { "amount": 6.0, "speed": 4.0 }
+      "params": { "shift_amount": 1.0, "glitch_speed": 1.0 }
+    },
+    {
+      "id": "ink_spread",
+      "name": "Ink Spread",
+      "shader": "shaders/ink_spread.hlsl",
+      "hotkey": { "keys": ["ctrl", "shift", "k"], "mode": "toggle" },
+      "params": { "ink_speed": 1.0, "contrast": 1.0, "blob_count": 8.0 }
     },
     {
       "id": "blackhole",

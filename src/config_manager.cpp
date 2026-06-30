@@ -13,20 +13,24 @@ static Config build_defaults() {
             {"ctrl", "shift", "i"}, {}
         },
         {
-            "magnifier", "Mouse Magnifier", "shaders/magnifier.hlsl", "hold",
-            {"ctrl", "shift", "m"}, {{"zoom", 2.0f}, {"radius", 200.0f}}
+            "kaleidoscope", "Kaleidoscope", "shaders/kaleidoscope.hlsl", "hold",
+            {"ctrl", "shift", "m"}, {{"sector_count", 8.0f}, {"rotation_speed", 0.5f}}
         },
         {
-            "warm_color", "Warm Color Temp", "shaders/warm_color.hlsl", "toggle",
-            {"ctrl", "shift", "w"}, {{"temperature", 3000.0f}}
+            "window_boil", "Window Boil", "shaders/window_boil.hlsl", "toggle",
+            {"ctrl", "shift", "w"}, {{"intensity", 1.0f}, {"speed", 1.0f}}
         },
         {
-            "edge_glow", "Window Edge Glow", "shaders/edge_glow.hlsl", "toggle",
-            {"ctrl", "shift", "e"}, {{"width", 10.0f}, {"intensity", 0.5f}}
+            "edge_neon", "Edge Neon", "shaders/edge_neon.hlsl", "toggle",
+            {"ctrl", "shift", "e"}, {{"neon_width", 8.0f}, {"speed", 2.0f}, {"spark", 1.0f}}
         },
         {
-            "window_jiggle", "Window Jiggle", "shaders/window_jiggle.hlsl", "toggle",
-            {"ctrl", "shift", "j"}, {{"amount", 6.0f}, {"speed", 4.0f}}
+            "glitch_shift", "Glitch Shift", "shaders/glitch_shift.hlsl", "toggle",
+            {"ctrl", "shift", "j"}, {{"shift_amount", 1.0f}, {"glitch_speed", 1.0f}}
+        },
+        {
+            "ink_spread", "Ink Spread", "shaders/ink_spread.hlsl", "toggle",
+            {"ctrl", "shift", "k"}, {{"ink_speed", 1.0f}, {"contrast", 1.0f}, {"blob_count", 8.0f}}
         },
         {
             "blackhole", "Black Hole", "shaders/blackhole.hlsl", "toggle",

@@ -29,10 +29,11 @@ Windows 桌面屏幕着色器叠加层。通过透明全屏窗口对显示器画
 | 快捷键 | 效果 |
 |--------|------|
 | `Ctrl+Shift+I` | 色彩反转（切换） |
-| `Ctrl+Shift+M` | 鼠标放大镜（按住） |
-| `Ctrl+Shift+W` | 暖色温（切换） |
-| `Ctrl+Shift+E` | 窗口边缘发光（切换） |
-| `Ctrl+Shift+J` | 窗口抖动（切换） |
+| `Ctrl+Shift+M` | 万花筒（按住） |
+| `Ctrl+Shift+W` | 窗口沸腾（切换） |
+| `Ctrl+Shift+E` | 边缘霓虹（切换） |
+| `Ctrl+Shift+J` | 错位空间（切换） |
+| `Ctrl+Shift+K` | 墨水扩散（切换） |
 | `Ctrl+Shift+B` | 黑洞效果（切换） |
 | `F5` | 重新加载配置和着色器 |
 | `Ctrl+Shift+D` | 导出窗口列表到 `桌面\mirage_debug.txt` |
@@ -181,10 +182,11 @@ for (uint i = 0; i < u_window_count; i++) {
 | 文件 | 效果 | 关键技术 |
 |------|------|---------|
 | `invert.hlsl` | 色彩反转 | 最简着色器（一行代码） |
-| `magnifier.hlsl` | 鼠标跟随放大镜 | 鼠标交互、smoothstep 平滑混合 |
-| `warm_color.hlsl` | 暖色温 | 开尔文色温 → RGB 转换矩阵 |
-| `edge_glow.hlsl` | 窗口边缘发光 | 窗口矩形采样、边缘检测 |
-| `window_jiggle.hlsl` | 窗口抖动 | 逐边振荡、指数衰减 |
+| `kaleidoscope.hlsl` | 鼠标万花筒（8 扇区） | 极坐标变换、扇区镜像、窗口保留 |
+| `window_boil.hlsl` | 窗口沸腾 | 多层噪声、逐像素偏移 |
+| `edge_neon.hlsl` | 扫描霓虹窗口边缘 + 光标火花 | 边缘距离、色相循环、接近检测 |
+| `glitch_shift.hlsl` | 画面撕裂故障艺术 | RGB 通道分离、块噪声、VHS 扫描线 |
+| `ink_spread.hlsl` | 墨迹扩散 → 黑白高对比 | 程序化墨点、生命周期动画、对比度增强 |
 | `blackhole.hlsl` | 史瓦西黑洞 | 测地线光线追踪、吸积盘、黑体辐射 |
 
 ---

@@ -29,10 +29,11 @@ A lightweight Windows desktop screen shader overlay. Applies real-time GPU shade
 | Shortcut | Effect |
 |----------|--------|
 | `Ctrl+Shift+I` | Color Inversion (toggle) |
-| `Ctrl+Shift+M` | Mouse Magnifier (hold) |
-| `Ctrl+Shift+W` | Warm Color Temperature (toggle) |
-| `Ctrl+Shift+E` | Window Edge Glow (toggle) |
-| `Ctrl+Shift+J` | Window Jiggle (toggle) |
+| `Ctrl+Shift+M` | Kaleidoscope (hold) |
+| `Ctrl+Shift+W` | Window Boil (toggle) |
+| `Ctrl+Shift+E` | Edge Neon (toggle) |
+| `Ctrl+Shift+J` | Glitch Shift (toggle) |
+| `Ctrl+Shift+K` | Ink Spread (toggle) |
 | `Ctrl+Shift+B` | Black Hole (toggle) |
 | `F5` | Reload config & shaders from disk |
 | `Ctrl+Shift+D` | Dump window list to `Desktop\mirage_debug.txt` |
@@ -181,10 +182,11 @@ See `shaders/edge_glow.hlsl` and `shaders/window_jiggle.hlsl` for complete examp
 | File | What it does | Key techniques |
 |------|-------------|----------------|
 | `invert.hlsl` | Color inversion | Simplest possible shader (one line) |
-| `magnifier.hlsl` | Mouse-following zoom | Mouse interaction, smoothstep blending |
-| `warm_color.hlsl` | Color temperature | Kelvin-to-RGB conversion matrix |
-| `edge_glow.hlsl` | Glowing window borders | Window rect sampling, edge detection |
-| `window_jiggle.hlsl` | Wobbling window edges | Per-edge oscillation, exponential falloff |
+| `kaleidoscope.hlsl` | 8-sector mouse kaleidoscope | Polar coordinates, sector mirroring, window preservation |
+| `window_boil.hlsl` | Windows boil like water | Multi-octave noise, per-pixel displacement |
+| `edge_neon.hlsl` | Scanning neon window edges + cursor sparks | Edge distance, hue cycling, proximity detection |
+| `glitch_shift.hlsl` | Screen-split glitch art | RGB channel split, block noise, VHS scanlines |
+| `ink_spread.hlsl` | Expanding ink blobs → B&W contrast | Procedural blobs, life-cycle animation, contrast boost |
 | `blackhole.hlsl` | Schwarzschild black hole | Geodesic ray tracing, accretion disk, blackbody radiation |
 
 ---
