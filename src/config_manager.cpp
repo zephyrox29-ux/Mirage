@@ -7,6 +7,9 @@ using json = nlohmann::json;
 static Config build_defaults() {
     Config c;
     c.version = 1;
+    c.screensaver.enabled = false;
+    c.screensaver.idle_seconds = 30;
+    c.screensaver.effect_id = "blackhole";
     c.effects = {
         {
             "invert", "Color Inversion", "shaders/invert.hlsl", "toggle",
@@ -59,6 +62,7 @@ Config load_config(const std::string& path) {
             ec.id = ej.at("id").get<std::string>();
             ec.name = ej.value("name", ec.id);
             ec.shader_path = ej.at("shader").get<std::string>();
+            ec.enabled = ej.value("enabled", true);
 
             const auto& hk = ej.at("hotkey");
             ec.keys = hk.at("keys").get<std::vector<std::string>>();
@@ -71,6 +75,14 @@ Config load_config(const std::string& path) {
             }
             c.effects.push_back(ec);
         }
+
+        if (j.contains("screensaver")) {
+            const auto& ss = j.at("screensaver");
+            c.screensaver.enabled = ss.value("enabled", false);
+            c.screensaver.idle_seconds = ss.value("idle_seconds", 30);
+            c.screensaver.effect_id = ss.value("effect", "blackhole");
+        }
+
         return c;
     } catch (...) {
         return build_defaults();

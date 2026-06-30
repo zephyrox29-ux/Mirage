@@ -22,10 +22,10 @@ static bool                      g_has_active_effects = false;
 static bool                      g_dump_pressed = false;
 static int                       g_shader_failures = 0;
 static float                     g_auto_fade = 0.0f;       // current smooth fade value
-static float                     g_manual_target = 0.0f;   // 1=user wants BH on, 0=off
+static float                     g_manual_target = 0.0f;   // 1=user wants ss effect on, 0=off
 static float                     g_auto_target = 0.0f;     // 1=idle screensaver, 0=active
-static int                       g_bh_shader_idx = -1;     // black hole index in g_shaders
-static int                       g_bh_fade_param_idx = -1; // "fade" param index in black hole
+static int                       g_ss_shader_idx = -1;     // screensaver effect index in g_shaders
+static int                       g_ss_fade_param_idx = -1; // "fade" param index in screensaver effect
 
 static std::string get_exe_dir() {
     wchar_t path[MAX_PATH];
@@ -44,6 +44,11 @@ static void load_all_shaders() {
 
     ID3D11Device* device = renderer_get_device();
     for (const auto& cfg : g_config.effects) {
+        // Always keep indices aligned — push null for disabled or failed effects
+        if (!cfg.enabled) {
+            g_shaders.push_back(nullptr);
+            continue;
+        }
         std::string full_path = get_exe_dir() + cfg.shader_path;
         EffectConfig cfg_with_path = cfg;
         cfg_with_path.shader_path = full_path;
@@ -59,18 +64,20 @@ static void load_all_shaders() {
 
     g_effects = g_config.effects;
 
-    // Cache black hole shader index and fade param index for auto-idle
-    g_bh_shader_idx = -1;
-    g_bh_fade_param_idx = -1;
-    for (size_t i = 0; i < g_effects.size(); i++) {
-        if (g_effects[i].id == "blackhole") {
-            g_bh_shader_idx = (int)i;
-            int pi = 0;
-            for (const auto& [name, value] : g_effects[i].params) {
-                if (name == "fade") { g_bh_fade_param_idx = pi; break; }
-                pi++;
+    // Cache screensaver effect index and fade param index
+    g_ss_shader_idx = -1;
+    g_ss_fade_param_idx = -1;
+    if (g_config.screensaver.enabled) {
+        for (size_t i = 0; i < g_effects.size(); i++) {
+            if (g_effects[i].id == g_config.screensaver.effect_id && g_effects[i].enabled) {
+                g_ss_shader_idx = (int)i;
+                int pi = 0;
+                for (const auto& [name, value] : g_effects[i].params) {
+                    if (name == "fade") { g_ss_fade_param_idx = pi; break; }
+                    pi++;
+                }
+                break;
             }
-            break;
         }
     }
 }
@@ -107,54 +114,50 @@ static void update_and_render() {
         load_all_shaders();
     }
 
-    // ── Black hole fade control (manual toggle + auto-idle screensaver) ──
-    {
+    // ── Screensaver fade control ──
+    if (g_config.screensaver.enabled && g_ss_shader_idx >= 0) {
         LASTINPUTINFO lii = { sizeof(LASTINPUTINFO) };
         GetLastInputInfo(&lii);
-        bool is_idle = (GetTickCount() - lii.dwTime) > 30000;
+        DWORD idle_ms = GetTickCount() - lii.dwTime;
+        bool is_idle = idle_ms > (DWORD)(g_config.screensaver.idle_seconds * 1000);
 
-        // Auto target: screensaver behaviour
         g_auto_target = is_idle ? 1.0f : 0.0f;
 
-        // Manual target: intercept Ctrl+Shift+B toggle edges
+        // Manual target: intercept toggle edges for the screensaver effect
         const auto& active_states = input_effect_active_states();
-        if (g_bh_shader_idx >= 0 && g_bh_shader_idx < (int)active_states.size()) {
+        if (g_ss_shader_idx < (int)active_states.size()) {
             static bool prev_toggle = false;
-            bool curr_toggle = active_states[g_bh_shader_idx];
+            bool curr_toggle = active_states[g_ss_shader_idx];
             if (curr_toggle != prev_toggle) {
                 g_manual_target = (g_manual_target > 0.5f) ? 0.0f : 1.0f;
             }
             prev_toggle = curr_toggle;
         }
 
-        // Effective target: manual overrides auto-off, auto-on works independently
         float target = max(g_manual_target, g_auto_target);
-
-        // Smooth fade toward target (~2 seconds for full transition)
         float step = input_time_delta() * 0.5f;
         if (g_auto_fade < target) g_auto_fade = min(target, g_auto_fade + step);
         if (g_auto_fade > target) g_auto_fade = max(target, g_auto_fade - step);
 
-        // Push fade value into black hole shader params
-        if (g_bh_shader_idx >= 0 && g_bh_fade_param_idx >= 0 && g_shaders[g_bh_shader_idx]) {
-            g_shaders[g_bh_shader_idx]->param_values[g_bh_fade_param_idx] =
+        if (g_ss_fade_param_idx >= 0 && g_shaders[g_ss_shader_idx]) {
+            g_shaders[g_ss_shader_idx]->param_values[g_ss_fade_param_idx] =
                 g_auto_fade > 0.001f ? g_auto_fade : 0.0f;
         }
     }
 
-    // Collect active effects (skip black hole — handled by fade system below)
+    // Collect active effects (skip screensaver effect — handled by fade system below)
     const auto& active = input_effect_active_states();
     std::vector<Shader*> active_shaders;
     for (size_t i = 0; i < active.size() && i < g_shaders.size(); i++) {
-        if ((int)i == g_bh_shader_idx) continue; // handled separately
+        if ((int)i == g_ss_shader_idx) continue; // handled separately
         if (active[i] && g_shaders[i]) {
             active_shaders.push_back(g_shaders[i]);
         }
     }
 
-    // Black hole active when fading in/out (smooth size transition)
-    if (g_auto_fade > 0.001f && g_bh_shader_idx >= 0 && g_shaders[g_bh_shader_idx]) {
-        active_shaders.push_back(g_shaders[g_bh_shader_idx]);
+    // Screensaver effect active when fading in/out
+    if (g_auto_fade > 0.001f && g_ss_shader_idx >= 0 && g_shaders[g_ss_shader_idx]) {
+        active_shaders.push_back(g_shaders[g_ss_shader_idx]);
     }
 
     g_has_active_effects = !active_shaders.empty();
