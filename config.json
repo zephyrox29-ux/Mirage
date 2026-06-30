@@ -60,6 +60,7 @@
       "shader": "shaders/blackhole.hlsl",
       "hotkey": { "keys": ["ctrl", "shift", "b"], "mode": "toggle" },
       "params": {
+        "center_drift": 1.0,
         "hole_radius": 0.06,
         "disk_gain": 2.2,
         "disk_temp": 5500.0,
