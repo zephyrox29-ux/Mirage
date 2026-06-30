@@ -124,15 +124,11 @@ Mirage 可以在电脑无人操作时自动激活效果，类似屏保：
 
 ### OBS 录屏 / 屏幕录制
 
-默认情况下 Mirage 对基于 DXGI 的屏幕捕获（OBS 显示器采集、Xbox Game Bar 等）不可见，以防止视觉反馈循环。如需录制演示：
+Mirage 对 DXGI 显示器采集（OBS 显示器采集、Xbox Game Bar）不可见，以防视觉反馈循环。录制演示方法：
 
-1. 在 `config.json` 中设置 `"exclude_from_capture": false`，按 `F5`
-2. 录屏软件即可捕获 Mirage 效果
-3. **注意事项：** 移动类效果（如 `center_drift > 0` 的黑洞）会因逐帧反馈叠加而出现残影鬼影。干净录制的方法：
-   - 将黑洞的 `center_drift` 设为 `0.0`，使其固定在屏幕中央，或
-   - 使用采集卡（硬件采集，不受 DXGI 排除影响），或
-   - 使用 OBS 窗口采集直接捕获 Mirage 窗口
-4. 录制完成后将 `exclude_from_capture` 改回 `true` 恢复正常
+- **OBS 窗口采集**（推荐）—— 添加窗口采集源，指向 Mirage 窗口。窗口采集使用 DWM 缩略图，不受 DXGI 排除影响。
+- **采集卡** —— GPU 与显示器之间的硬件采集，完全不受软件排除限制。
+- **避免使用 OBS 显示器采集** —— 与 Mirage 内部使用相同的 DXGI Desktop Duplication API，无法捕获到效果。
 
 ### 常见问题
 

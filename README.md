@@ -141,15 +141,11 @@ The screensaver effect must have a `fade` parameter (set to `1.0` in config). Th
 
 ### Recording with OBS / Screen Recorders
 
-By default Mirage is invisible to DXGI-based screen capture (OBS Display Capture, Xbox Game Bar, etc.) to prevent visual feedback loops. To record demos:
+Mirage is invisible to DXGI Display Capture (OBS Display Capture, Xbox Game Bar) to prevent visual feedback loops. To record demos:
 
-1. Set `"exclude_from_capture": false` in `config.json`, press `F5`
-2. Your screen recorder can now see Mirage effects
-3. **Caveat:** moving effects (like black hole with `center_drift > 0`) will show ghosting due to feedback compounding. For clean recording:
-   - Set `"center_drift": 0.0` in the black hole params to freeze it at screen center, or
-   - Use a capture card (hardware capture, immune to DXGI exclusion), or
-   - Use OBS Window Capture targeting the Mirage window directly
-4. Set `"exclude_from_capture": true` when done to restore normal operation
+- **OBS Window Capture** (recommended) — Add a Window Capture source pointing to the Mirage window. Window Capture uses DWM thumbnails, which bypass DXGI exclusion.
+- **Capture card** — Hardware capture between GPU and monitor, immune to all software exclusion.
+- **Avoid OBS Display Capture** — it uses the same DXGI Desktop Duplication API as Mirage's internal capture and will not see the effects.
 
 ### Troubleshooting
 
