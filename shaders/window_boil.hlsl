@@ -61,15 +61,17 @@ float4 main(PS_INPUT input) : SV_TARGET {
         if (blend > 0.001 && best_inside < blend_zone) {
             float2 local = (uv - best_rmin) / max(best_rmax - best_rmin, 0.001);
 
-            // Multi-octave boiling noise
-            float n1 = noise2d(local * 30.0 + float2(t * 2.3, t * 1.7));
-            float n2 = noise2d(local * 60.0 + float2(t * 3.1, -t * 2.5)) * 0.5;
-            float n3 = noise2d(local * 120.0 + float2(-t * 1.9, t * 3.7)) * 0.25;
+            // Multi-octave boiling noise (centered: subtract 0.5 so displacement goes both ways)
+            float n1x = noise2d(local * 30.0 + float2(t * 2.3, t * 1.7)) - 0.5;
+            float n2x = noise2d(local * 60.0 + float2(t * 3.1, -t * 2.5)) - 0.5;
+            float n3x = noise2d(local * 120.0 + float2(-t * 1.9, t * 3.7)) - 0.5;
+
+            float n1y = noise2d(local * 25.0 + float2(t * 1.5, t * 2.9)) - 0.5;
+            float n2y = noise2d(local * 55.0 + float2(-t * 2.7, t * 1.3)) - 0.5;
 
             float2 displace;
-            displace.x = (n1 * 0.04 + n2 * 0.02 + n3 * 0.01) * intens;
-            displace.y = (noise2d(local * 25.0 + float2(t * 1.5, t * 2.9)) * 0.04
-                       + noise2d(local * 55.0 + float2(-t * 2.7, t * 1.3)) * 0.02) * intens;
+            displace.x = (n1x * 0.08 + n2x * 0.04 + n3x * 0.02) * intens;
+            displace.y = (n1y * 0.08 + n2y * 0.04) * intens;
 
             float2 duv = clamp(uv + displace, best_rmin + 0.002, best_rmax - 0.002);
             float4 boil_sample = u_scene.Sample(u_sampler, duv);
