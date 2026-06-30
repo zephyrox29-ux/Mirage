@@ -42,19 +42,51 @@ Windows 桌面屏幕着色器叠加层。通过透明全屏窗口对显示器画
 
 编辑 `config.json` 可修改快捷键、增删效果或调整着色器参数。按 `F5` 即可热重载，无需重启程序。
 
+**完整配置示例：**
+
 ```json
 {
   "version": 1,
+  "screensaver": {
+    "enabled": true,
+    "idle_seconds": 30,
+    "effect": "blackhole"
+  },
   "effects": [
     {
       "id": "invert",
       "name": "色彩反转",
       "shader": "shaders/invert.hlsl",
-      "hotkey": { "keys": ["ctrl", "shift", "i"], "mode": "toggle" }
+      "hotkey": { "keys": ["ctrl", "shift", "i"], "mode": "toggle" },
+      "enabled": true
+    },
+    {
+      "id": "blackhole",
+      "name": "黑洞",
+      "shader": "shaders/blackhole.hlsl",
+      "hotkey": { "keys": ["ctrl", "shift", "b"], "mode": "toggle" },
+      "params": {
+        "hole_radius": 0.06,
+        "fade": 1.0,
+        "disk_gain": 2.2
+      },
+      "enabled": true
     }
   ]
 }
 ```
+
+**效果字段说明：**
+
+| 字段 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `id` | string | 必填 | 效果唯一标识 |
+| `name` | string | `id` | 显示名称 |
+| `shader` | string | 必填 | `.hlsl` 文件路径，相对于 `mirage.exe` |
+| `hotkey.keys` | string[] | 必填 | 按键组合 |
+| `hotkey.mode` | string | 必填 | 触发模式：`hold`、`toggle`、`oneshot`、`stack` |
+| `params` | object | `{}` | 最多 16 个浮点键值对 |
+| `enabled` | bool | `true` | 设为 `false` 可禁用效果但不从配置中删除 |
 
 **触发模式：**
 - `"hold"` — 按住按键时生效，松开即停止
@@ -64,26 +96,31 @@ Windows 桌面屏幕着色器叠加层。通过透明全屏窗口对显示器画
 
 **可用按键：** `ctrl`、`shift`、`alt`、`win`、`a`–`z`、`0`–`9`、`f1`–`f12`、`space`、`tab`、`escape`、`enter`、`backspace`、`left`、`right`、`up`、`down`
 
-### 着色器参数
+### 屏保（自动空闲）
 
-每个效果最多可配置 16 个浮点参数。以黑洞效果为例：
+Mirage 可以在电脑无人操作时自动激活效果，类似屏保：
 
 ```json
-{
-  "id": "blackhole",
-  "name": "黑洞",
-  "shader": "shaders/blackhole.hlsl",
-  "hotkey": { "keys": ["ctrl", "shift", "b"], "mode": "toggle" },
-  "params": {
-    "hole_radius": 0.03,
-    "disk_gain": 2.2,
-    "disk_temp": 5500.0,
-    "exposure": 1.4
-  }
+"screensaver": {
+  "enabled": true,
+  "idle_seconds": 30,
+  "effect": "blackhole"
 }
 ```
 
-参数在着色器中通过 `u_param_<参数名>` 访问（如 `u_param_hole_radius`）。
+| 字段 | 默认值 | 说明 |
+|------|--------|------|
+| `enabled` | `false` | 设为 `true` 启用自动空闲激活 |
+| `idle_seconds` | `30` | 无操作多少秒后触发 |
+| `effect` | `"blackhole"` | 用作屏保的效果 ID |
+
+空闲超时后，效果通过尺寸缩放平滑淡入（约 2 秒）。移动鼠标或按键后平滑淡出。手动快捷键可独立使用——在屏保激活时按下快捷键，即使恢复操作后效果也会保持；再次按下则关闭。
+
+屏保效果必须包含 `fade` 参数（配置中设为 `1.0`）。程序通过此参数控制缩放动画——效果从零尺寸逐渐膨胀至完整状态，反之亦然。
+
+### 着色器参数
+
+每个效果最多可配置 16 个浮点参数。参数在着色器中通过 `u_param_<参数名>` 访问（如 `u_param_hole_radius`）。
 
 ### 常见问题
 

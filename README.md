@@ -42,19 +42,51 @@ A lightweight Windows desktop screen shader overlay. Applies real-time GPU shade
 
 Edit `config.json` to change hotkeys, add/remove effects, or tweak shader parameters. Press `F5` to reload without restarting.
 
+**Full config example:**
+
 ```json
 {
   "version": 1,
+  "screensaver": {
+    "enabled": true,
+    "idle_seconds": 30,
+    "effect": "blackhole"
+  },
   "effects": [
     {
       "id": "invert",
       "name": "Color Inversion",
       "shader": "shaders/invert.hlsl",
-      "hotkey": { "keys": ["ctrl", "shift", "i"], "mode": "toggle" }
+      "hotkey": { "keys": ["ctrl", "shift", "i"], "mode": "toggle" },
+      "enabled": true
+    },
+    {
+      "id": "blackhole",
+      "name": "Black Hole",
+      "shader": "shaders/blackhole.hlsl",
+      "hotkey": { "keys": ["ctrl", "shift", "b"], "mode": "toggle" },
+      "params": {
+        "hole_radius": 0.06,
+        "fade": 1.0,
+        "disk_gain": 2.2
+      },
+      "enabled": true
     }
   ]
 }
 ```
+
+**Effect fields:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `id` | string | required | Unique identifier for the effect |
+| `name` | string | `id` | Display name |
+| `shader` | string | required | Path to `.hlsl` file, relative to `mirage.exe` |
+| `hotkey.keys` | string[] | required | Key combination (see below) |
+| `hotkey.mode` | string | required | Trigger mode: `hold`, `toggle`, `oneshot`, `stack` |
+| `params` | object | `{}` | Up to 16 float key-value pairs |
+| `enabled` | bool | `true` | Set to `false` to disable without removing from config |
 
 **Hotkey modes:**
 - `"hold"` — active while keys are held
@@ -84,6 +116,28 @@ Each effect can have up to 16 float parameters. Example from the black hole effe
 ```
 
 Parameters are accessible in the shader as `u_param_<name>` (e.g., `u_param_hole_radius`).
+
+### Screensaver (Auto-Idle)
+
+Mirage can automatically activate an effect when the computer is idle, like a screensaver:
+
+```json
+"screensaver": {
+  "enabled": true,
+  "idle_seconds": 30,
+  "effect": "blackhole"
+}
+```
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `enabled` | `false` | Set to `true` to enable auto-idle |
+| `idle_seconds` | `30` | Seconds of inactivity before triggering |
+| `effect` | `"blackhole"` | Which effect ID to use as the screensaver |
+
+When idle time exceeds the threshold, the effect fades in smoothly via size scaling (~2 seconds). Moving the mouse or pressing a key fades it back out. The manual hotkey still works independently — pressing it while the screensaver is active keeps the effect on after you return, or turns it off if the screensaver hasn't started yet.
+
+The screensaver effect must have a `fade` parameter (set to `1.0` in config). The program uses this to control the smooth appear/disappear animation by scaling the effect size from zero to full.
 
 ### Troubleshooting
 
