@@ -53,6 +53,7 @@
         "disk_gain": 2.2,
         "disk_temp": 5500.0,
         "exposure": 1.4,
+        "fade": 1.0,
         "disk_speed": 5.0,
         "star_gain": 0.3,
         "disk_incl": 1.5,

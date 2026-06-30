@@ -36,7 +36,7 @@ static Config build_defaults() {
             "blackhole", "Black Hole", "shaders/blackhole.hlsl", "toggle",
             {"ctrl", "shift", "b"},
             {{"hole_radius", 0.03f}, {"disk_gain", 2.2f}, {"disk_temp", 5500.0f},
-             {"exposure", 1.4f}, {"disk_speed", 5.0f}, {"star_gain", 0.3f},
+             {"exposure", 1.4f}, {"fade", 1.0f}, {"disk_speed", 5.0f}, {"star_gain", 0.3f},
              {"disk_incl", 1.5f}, {"disk_inner", 0.0f}, {"disk_outer", 0.0f},
              {"disk_opacity", 0.0f}, {"doppler_mix", 0.6f}, {"disk_beam", 0.0f},
              {"disk_contrast", 0.0f}, {"disk_wind", 0.0f}, {"disk_roll", 0.0f}}

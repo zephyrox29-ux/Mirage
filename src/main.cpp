@@ -21,6 +21,9 @@ static bool                      g_had_effects = false;   // previous frame effe
 static bool                      g_has_active_effects = false;
 static bool                      g_dump_pressed = false;
 static int                       g_shader_failures = 0;
+static float                     g_auto_fade = 0.0f;       // screensaver-style auto fade
+static int                       g_bh_shader_idx = -1;     // black hole index in g_shaders
+static int                       g_bh_fade_param_idx = -1; // "fade" param index in black hole
 
 static std::string get_exe_dir() {
     wchar_t path[MAX_PATH];
@@ -53,6 +56,21 @@ static void load_all_shaders() {
     }
 
     g_effects = g_config.effects;
+
+    // Cache black hole shader index and fade param index for auto-idle
+    g_bh_shader_idx = -1;
+    g_bh_fade_param_idx = -1;
+    for (size_t i = 0; i < g_effects.size(); i++) {
+        if (g_effects[i].id == "blackhole") {
+            g_bh_shader_idx = (int)i;
+            int pi = 0;
+            for (const auto& [name, value] : g_effects[i].params) {
+                if (name == "fade") { g_bh_fade_param_idx = pi; break; }
+                pi++;
+            }
+            break;
+        }
+    }
 }
 
 static void update_and_render() {
@@ -87,12 +105,39 @@ static void update_and_render() {
         load_all_shaders();
     }
 
-    // Collect active effects (by pointer to EffectConfig + Shader pair)
+    // Auto-idle: detect inactivity and fade black hole in/out smoothly
+    {
+        LASTINPUTINFO lii = { sizeof(LASTINPUTINFO) };
+        GetLastInputInfo(&lii);
+        DWORD idle_ms = GetTickCount() - lii.dwTime;
+        bool  is_idle = idle_ms > 30000; // 30-second threshold
+
+        float target = is_idle ? 1.0f : 0.0f;
+        float step   = input_time_delta() * 0.5f; // ~2 seconds for full fade
+        if (g_auto_fade < target) g_auto_fade = min(target, g_auto_fade + step);
+        if (g_auto_fade > target) g_auto_fade = max(target, g_auto_fade - step);
+
+        // Update black hole's fade param dynamically
+        if (g_bh_shader_idx >= 0 && g_bh_fade_param_idx >= 0 && g_shaders[g_bh_shader_idx]) {
+            // 0 = use shader default (1.0), only set while auto-fading
+            g_shaders[g_bh_shader_idx]->param_values[g_bh_fade_param_idx] =
+                g_auto_fade > 0.001f ? g_auto_fade : 0.0f;
+        }
+    }
+
+    // Collect active effects
     const auto& active = input_effect_active_states();
     std::vector<Shader*> active_shaders;
     for (size_t i = 0; i < active.size() && i < g_shaders.size(); i++) {
         if (active[i] && g_shaders[i]) {
             active_shaders.push_back(g_shaders[i]);
+        }
+    }
+
+    // Auto-activate black hole when fading in (add if not already active)
+    if (g_auto_fade > 0.001f && g_bh_shader_idx >= 0 && g_bh_shader_idx < (int)active.size()) {
+        if (!active[g_bh_shader_idx] && g_shaders[g_bh_shader_idx]) {
+            active_shaders.push_back(g_shaders[g_bh_shader_idx]);
         }
     }
 

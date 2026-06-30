@@ -226,5 +226,11 @@ float4 main(PS_INPUT input) : SV_TARGET {
     }
 
     float3 col = bg * trans + (float3(1.0, 1.0, 1.0) - exp(-emitc * L.expo));
+
+    // Smooth fade blend: 0 = original desktop, 1 = full black hole
+    float fade = u_param_fade > 0.0 ? u_param_fade : 1.0;
+    float3 orig = u_scene.Sample(u_sampler, uv).rgb;
+    col = lerp(orig, col, fade);
+
     return float4(col, 1.0);
 }
