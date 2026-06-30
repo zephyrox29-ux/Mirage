@@ -122,7 +122,13 @@ float4 main(PS_INPUT input) : SV_TARGET {
     float rout = max(L.outer, rin + 0.5);
 
     float useHoleR = u_param_hole_radius > 0.0 ? u_param_hole_radius : HOLE_RADIUS;
-    float rh = useHoleR;
+
+    // Smooth size scaling: 0 = no black hole, 1 = full size
+    float fade = u_param_fade > 0.0 ? u_param_fade : 1.0;
+    float scale = fade * fade; // quadratic for natural pop-in/pop-out
+
+    // Scale the hole radius — effectively shrinks/grows the black hole
+    float rh = useHoleR * (0.002 + 0.998 * scale); // never quite zero to avoid singularity
     float I  = 1.0;
     float dil = lerp(1.0, DILATION_MIN, I);
     float vis = 1.0;
@@ -200,7 +206,7 @@ float4 main(PS_INPUT input) : SV_TARGET {
                 float boost = pow(g, L.beam);
 
                 float density = band * streaks;
-                emitc += trans * cbb * (L.gain * 2.2 * density * tprof * tprof * boost);
+                emitc += trans * cbb * (L.gain * 2.2 * density * tprof * tprof * boost) * scale;
                 trans *= 1.0 - clamp(L.opac * density, 0.0, 1.0);
             }
         }
@@ -226,11 +232,5 @@ float4 main(PS_INPUT input) : SV_TARGET {
     }
 
     float3 col = bg * trans + (float3(1.0, 1.0, 1.0) - exp(-emitc * L.expo));
-
-    // Smooth fade blend: 0 = original desktop, 1 = full black hole
-    float fade = u_param_fade > 0.0 ? u_param_fade : 1.0;
-    float3 orig = u_scene.Sample(u_sampler, uv).rgb;
-    col = lerp(orig, col, fade);
-
     return float4(col, 1.0);
 }
