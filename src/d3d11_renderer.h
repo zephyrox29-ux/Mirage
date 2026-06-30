@@ -5,7 +5,7 @@
 #include <vector>
 #include "shader_manager.h"
 
-bool renderer_init(HWND hwnd);
+bool renderer_init(HWND hwnd, bool exclude_from_capture = true);
 void renderer_resize(int w, int h);
 bool renderer_render_frame(const std::vector<Shader*>& active_shaders); // returns true if Present was called
 void renderer_shutdown();

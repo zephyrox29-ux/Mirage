@@ -222,7 +222,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     if (!g_hwnd) return -1;
 
     // Init renderer (probes DD for true resolution, resizes window to match)
-    if (!renderer_init(g_hwnd)) {
+    if (!renderer_init(g_hwnd, g_config.exclude_from_capture)) {
         destroy_overlay_window(g_hwnd);
         return -1;
     }

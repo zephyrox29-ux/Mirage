@@ -28,6 +28,7 @@ struct Config {
     int version = 0;
     std::vector<EffectConfig> effects;
     ScreensaverConfig screensaver;
+    bool exclude_from_capture = true;
 };
 
 Config load_config(const std::string& path);

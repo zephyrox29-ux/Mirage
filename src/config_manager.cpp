@@ -56,6 +56,7 @@ Config load_config(const std::string& path) {
         json j = json::parse(f);
         Config c;
         c.version = j.value("version", 1);
+        c.exclude_from_capture = j.value("exclude_from_capture", true);
 
         for (const auto& ej : j.at("effects")) {
             EffectConfig ec;

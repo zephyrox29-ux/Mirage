@@ -80,9 +80,11 @@ static void release_intermediate_texture(
 
 // ---- public API ----
 
-bool renderer_init(HWND hwnd) {
+bool renderer_init(HWND hwnd, bool exclude_from_capture) {
     g_hwnd = hwnd;
-    SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
+    if (exclude_from_capture) {
+        SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
+    }
 
     // --- Find the adapter driving the primary desktop ---
     IDXGIFactory1* factory = nullptr;
